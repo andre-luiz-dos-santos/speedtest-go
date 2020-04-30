@@ -11,22 +11,31 @@ var (
 	webDir        string
 	redirBindAddr string
 	redirURL      string
+	allowFrom     IPNetList
 )
 
 func startRedirector() {
 	s := &http.Server{
 		Addr:    redirBindAddr,
-		Handler: http.RedirectHandler(redirURL, http.StatusPermanentRedirect),
+		Handler: http.RedirectHandler(redirURL, http.StatusTemporaryRedirect),
 	}
 	log.Fatal(s.ListenAndServe())
 }
 
 func main() {
+	var err error
+
 	flag.StringVar(&webBindAddr, "web-bind", ":8080", "web bind address")
 	flag.StringVar(&webDir, "web-root", "static", "web root directory")
 	flag.StringVar(&redirBindAddr, "redir-bind", "", "redirector bind address")
 	flag.StringVar(&redirURL, "redir-url", "", "redirector target URL")
+	allowFromStr := flag.String("allow-from", "", "limit permitted IPs")
 	flag.Parse()
+
+	err = allowFrom.ParseArg(*allowFromStr)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	if redirBindAddr != "" && redirURL != "" {
 		go startRedirector()
@@ -38,5 +47,5 @@ func main() {
 	fs := http.FileServer(http.Dir(webDir))
 	http.Handle("/", fs)
 
-	log.Fatal(http.ListenAndServe(webBindAddr, nil))
+	log.Fatal(http.ListenAndServe(webBindAddr, allowNetworkWrapper(http.DefaultServeMux)))
 }
