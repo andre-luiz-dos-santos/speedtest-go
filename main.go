@@ -11,6 +11,7 @@ var (
 	webDir        string
 	redirBindAddr string
 	redirURL      string
+	pingURL       string
 	allowFrom     IPNetList
 )
 
@@ -29,6 +30,7 @@ func main() {
 	flag.StringVar(&webDir, "web-root", "static", "web root directory")
 	flag.StringVar(&redirBindAddr, "redir-bind", "", "redirector bind address")
 	flag.StringVar(&redirURL, "redir-url", "", "redirector target URL")
+	flag.StringVar(&pingURL, "ping-url", "", "ping API URL")
 	allowFromStr := flag.String("allow-from", "", "limit permitted IPs")
 	flag.Parse()
 
@@ -41,6 +43,7 @@ func main() {
 		go startRedirector()
 	}
 
+	http.HandleFunc("/ping.php", pingHandler)
 	http.HandleFunc("/empty.php", emptyHandler)
 	http.HandleFunc("/garbage.php", garbageHandler)
 

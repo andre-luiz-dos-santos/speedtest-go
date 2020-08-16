@@ -9,3 +9,5 @@ Use the `-web-root` option to point to the website files.
 To avoid having users hitting the Google Data Saver proxy servers when doing a speed test, use the options `-redir-bind` and `-redir-url` to redirect to `-web-bind`.
 
 To restrict access based on the remote IP address, use the option `-allow-from`.
+
+Data received on `/ping.php` is forwarded to `-ping-url`. Key `addr` is added, containing the client IP:port. This feature may be used to handle data from the browser, like test results, etc.
